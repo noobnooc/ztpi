@@ -1,8 +1,11 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import classNames from "classnames";
+import Card from "../components/card";
+import { EnvelopeIcon, HeartIcon, HomeIcon } from "@heroicons/react/24/solid";
+import { Github, Instagram, Twitter } from "@icons-pack/react-simple-icons";
 
 type QuestionType =
   | "past-negative"
@@ -85,7 +88,7 @@ const questions: Question[] = [
     question: "我很容易想起曾经快乐的时光，美好的回忆。",
     type: "past-positive",
   },
-  { question: "我按町履行対朋友或上司的义务。", type: "future" },
+  { question: "我按时履行对朋友或上司的义务。", type: "future" },
   { question: "过去我受到的侮辱和拒绝都是应得的。", type: "past-negative" },
   { question: "我一时冲动做出決定。", type: "present-hedonistic" },
   {
@@ -123,7 +126,7 @@ const questions: Question[] = [
     type: "past-negative",
   },
   {
-    question: "你不可能真的能規划未来，変化大多了。",
+    question: "你不可能真的能规划未来，変化大多了。",
     type: "present-fatalistic",
   },
   {
@@ -141,7 +144,7 @@ const questions: Question[] = [
     reversed: true,
   },
   { question: "我冒风险在生活中寻求刺激。", type: "present-hedonistic" },
-  { question: "我列下要做的事情的清単。", type: "future" },
+  { question: "我列下要做的事情的清单。", type: "future" },
   { question: "我经常随心所欲，而非跟随理性。", type: "present-hedonistic" },
   { question: "当我知道有工作没完成时，我能抵制诱惑。", type: "future" },
   { question: "我发现自己常常被激情冲昏头脑。", type: "present-hedonistic" },
@@ -150,7 +153,7 @@ const questions: Question[] = [
     type: "present-fatalistic",
   },
   {
-    question: "我更喜欢那些随性的朋友;而不是有计划的朋友。",
+    question: "我更喜欢那些随性的朋友，而不是有计划的朋友。",
     type: "present-hedonistic",
   },
   { question: "我喜欢那些经常重复的家庭礼仪和传统。", type: "past-positive" },
@@ -242,14 +245,16 @@ function calculateAnswers(answers: number[]): Result {
       }
     );
 
-  console.log("aaa: ", totalAndCount);
-
   return Object.fromEntries(
     Object.entries(totalAndCount).map(([type, tac]) => [
       type,
       tac.total / tac.count,
     ])
   ) as Result;
+}
+
+function ifAnswersAvailable(answers: number[]): boolean {
+  return answers.every((answer) => Number.isInteger(answer) && answer > 0);
 }
 
 const Home: NextPage = () => {
@@ -266,6 +271,10 @@ const Home: NextPage = () => {
     [answers]
   );
 
+  const answersAvailable = useMemo(() => {
+    return ifAnswersAvailable(answers);
+  }, [answers]);
+
   const calcResult = useCallback(() => {
     setResult(calculateAnswers(answers));
     storeAnswers([]);
@@ -276,13 +285,25 @@ const Home: NextPage = () => {
   }, []);
 
   return (
-    <div className="relative isolate flex min-h-screen flex-col overflow-hidden bg-gray-100 text-black dark:bg-neutral-900 dark:text-gray-100">
+    <div className="relative isolate flex items-center min-h-screen flex-col overflow-hidden bg-gray-100 text-black dark:bg-neutral-900 dark:text-gray-100">
       <Head>
         <title>津巴多时间观量表</title>
         <link rel="icon" href="/favicon.ico" />
+        <meta name="description" content="在线计算津巴多时间观量表结果" />
+        <meta
+          name="keywords"
+          content="津巴多, 津巴多量表, 津巴多时间观, 津巴多时间观量表, 津巴多时间观量表计算, 津巴多时间观量表在线计算, 津巴多量表在线计算, 津巴多在线计算, ZTPI, ztpi, Zimbardo, Zimbardo Time Perspective Inventory"
+        />
+        <meta name="author" content="Nooc" />
       </Head>
+      <div className="fixed  -z-10 blur-3xl top-0 left-0 h-96 w-48 bg-indigo-500/30 duration-500 dark:bg-blue-500/40" />
+      <div className="fixed -z-10 blur-3xl  left-60 top-96 h-64 w-72 rounded-lg bg-green-500/30  duration-700 dark:bg-indigo-500/40" />
+      <div className="fixed -z-10 blur-3xl  right-96 bottom-60 h-60 w-60 rounded-lg bg-red-500/30 dark:bg-violet-500/30" />
+      <div className="fixed -z-10 blur-3xl  right-0 bottom-0 h-48 w-96 rounded-full bg-yellow-500/30 dark:bg-cyan-500/30" />
 
-      <main className="flex grow flex-col justify-center">
+      <Header />
+
+      <main className="flex grow max-w-xl px-5 flex-col justify-center space-y-5">
         {questions.map((question, index) => (
           <QuestionCard
             key={index}
@@ -292,37 +313,49 @@ const Home: NextPage = () => {
             onAnswer={(a) => answer(index, a)}
           />
         ))}
-        <button onClick={() => calcResult()}>查看结果</button>
+        <button
+          className="disabled:opacity-50"
+          disabled={!answersAvailable}
+          onClick={() => calcResult()}
+        >
+          <Card className="rounded-full">
+            {answersAvailable ? "查看结果" : "完成所有选项查看结果"}
+          </Card>
+        </button>
         {result && <ResultCard result={result} />}
       </main>
 
-      <footer className="text-md py-10 text-center text-sm opacity-60">
-        © 2022 Nooc
-      </footer>
+      <Footer />
     </div>
   );
 };
 
 function ResultCard({ result }: { result: Result }) {
   return (
-    <div>
-      <p>
-        消极的过去时间观: <span>{result["past-negative"].toFixed(2)}</span>
-      </p>
-      <p>
-        积极的过去时间观: <span>{result["past-positive"].toFixed(2)}</span>
-      </p>
-      <p>
-        宿命论现在时间观: <span>{result["present-fatalistic"].toFixed(2)}</span>
-      </p>
-      <p>
-        享乐主义现在时间观:{" "}
-        <span>{result["present-hedonistic"].toFixed(2)}</span>
-      </p>
-      <p>
-        未来时间观: <span>{result.future.toFixed(2)}</span>
-      </p>
-    </div>
+    <Card className="py-5">
+      <div className="grid grid-cols-3 gap-5">
+        <p className="text-right col-span-2 text-gray-700 dark:text-gray-400">
+          消极的过去时间观
+        </p>
+        <p className="text-left">{result["past-negative"].toFixed(2)}</p>
+        <p className="text-right col-span-2 text-gray-700 dark:text-gray-400">
+          积极的过去时间观
+        </p>
+        <p className="text-left">{result["past-positive"].toFixed(2)}</p>
+        <p className="text-right col-span-2 text-gray-700 dark:text-gray-400">
+          宿命论现在时间观
+        </p>
+        <p className="text-left">{result["present-fatalistic"].toFixed(2)}</p>
+        <p className="text-right col-span-2 text-gray-700 dark:text-gray-400">
+          享乐主义现在时间观
+        </p>
+        <p className="text-left">{result["present-hedonistic"].toFixed(2)}</p>
+        <p className="text-right col-span-2 text-gray-700 dark:text-gray-400">
+          未来时间观
+        </p>
+        <p className="text-left">{result.future.toFixed(2)}</p>
+      </div>
+    </Card>
   );
 }
 
@@ -338,53 +371,209 @@ function QuestionCard({
   onAnswer(answer: number): void;
 }) {
   return (
-    <div>
-      <div>
-        {number}.{question.question}.{question.type}
+    <Card className="flex">
+      <div className="w-5 text-gray-500 text-right mr-2">{number}.</div>
+      <div className="grow">
+        <div className="border-b dark:border-white/10 border-black/10 pb-2">
+          {question.question}
+        </div>
+        <div className="grid grid-cols-1 gap-1 sm:grid-cols-5 mt-2">
+          <div
+            className={classNames(
+              "text-center cursor-pointer transition-colors rounded dark:border-gray-700 border p-2 text-sm border-gray-200",
+              {
+                "bg-white/50": answer !== 1,
+                "dark:bg-black/50": answer !== 1,
+                "bg-blue-500": answer === 1,
+                "text-white/90": answer === 1,
+              }
+            )}
+            onClick={() => onAnswer(1)}
+          >
+            极不符合
+          </div>
+          <div
+            className={classNames(
+              "text-center cursor-pointer rounded dark:border-gray-700 border p-2 text-sm border-gray-200",
+              {
+                "bg-white/50": answer !== 2,
+                "dark:bg-black/50": answer !== 2,
+                "bg-blue-500": answer === 2,
+                "text-white/90": answer === 2,
+              }
+            )}
+            onClick={() => onAnswer(2)}
+          >
+            不符合
+          </div>
+          <div
+            className={classNames(
+              "text-center cursor-pointer rounded dark:border-gray-700 border p-2 text-sm border-gray-200",
+              {
+                "bg-white/50": answer !== 3,
+                "dark:bg-black/50": answer !== 3,
+                "bg-blue-500": answer === 3,
+                "text-white/90": answer === 3,
+              }
+            )}
+            onClick={() => onAnswer(3)}
+          >
+            中间态
+          </div>
+          <div
+            className={classNames(
+              "text-center cursor-pointer rounded dark:border-gray-700 border p-2 text-sm border-gray-200",
+              {
+                "bg-white/50": answer !== 4,
+                "dark:bg-black/50": answer !== 4,
+                "bg-blue-500": answer === 4,
+                "text-white/90": answer === 4,
+              }
+            )}
+            onClick={() => onAnswer(4)}
+          >
+            符合
+          </div>
+          <div
+            className={classNames(
+              "text-center cursor-pointer rounded dark:border-gray-700 border p-2 text-sm border-gray-200",
+              {
+                "bg-white/50": answer !== 5,
+                "dark:bg-black/50": answer !== 5,
+                "bg-blue-500": answer === 5,
+                "text-white/90": answer === 5,
+              }
+            )}
+            onClick={() => onAnswer(5)}
+          >
+            极为符合
+          </div>
+        </div>
       </div>
-      <div className="ml-10">
-        <div
-          className={classNames({
-            "bg-red-500": answer === 1,
-          })}
-          onClick={() => onAnswer(1)}
-        >
-          极不符合
+    </Card>
+  );
+}
+
+function Header() {
+  return (
+    <header className="px-5 max-w-xl w-full mt-10 mb-5">
+      <h1 className="text-2xl">津巴多时间观量表</h1>
+    </header>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="pb-16 sm:py-16">
+      <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="flex justify-center text-teal-600">
+          <a href="https://nooc.ink" target="_blank">
+            <svg
+              className="cursor-pointer  text-gray-700 dark:text-gray-400"
+              width="35px"
+              viewBox="0 0 291 249"
+              version="1.1"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <g
+                id="Nooc"
+                stroke="none"
+                strokeWidth="1"
+                fill="none"
+                fillRule="evenodd"
+              >
+                <g
+                  id="Avatar-Template"
+                  transform="translate(-54.000000, -54.000000)"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M199.5,54 C279.857431,54 345,119.142569 345,199.5 C345,239.745848 328.65989,276.17526 302.25197,302.515935 L199,199.264935 L96.249446,302.016217 C70.1345949,275.715474 54,239.491955 54,199.5 C54,119.142569 119.142569,54 199.5,54 Z"
+                    id="Sun"
+                  ></path>
+                </g>
+              </g>
+            </svg>
+          </a>
         </div>
-        <div
-          className={classNames({
-            "bg-red-500": answer === 2,
-          })}
-          onClick={() => onAnswer(2)}
-        >
-          不符合
-        </div>
-        <div
-          className={classNames({
-            "bg-red-500": answer === 3,
-          })}
-          onClick={() => onAnswer(3)}
-        >
-          中间态
-        </div>
-        <div
-          className={classNames({
-            "bg-red-500": answer === 4,
-          })}
-          onClick={() => onAnswer(4)}
-        >
-          符合
-        </div>
-        <div
-          className={classNames({
-            "bg-red-500": answer === 5,
-          })}
-          onClick={() => onAnswer(5)}
-        >
-          极为符合
-        </div>
+
+        <ul className="mt-12 flex justify-center gap-6 md:gap-8">
+          <li>
+            <a
+              href="https://nooc.ink"
+              target="_blank"
+              className="text-gray-700 transition hover:text-gray-700/75 dark:text-gray-400"
+            >
+              <span className="sr-only">Homepage</span>
+              <HomeIcon className="h-6 w-6" aria-hidden />
+            </a>
+          </li>
+
+          <li>
+            <a
+              href="https://www.instagram.com/noobnooc/"
+              rel="noreferrer"
+              target="_blank"
+              className="text-gray-700 transition hover:text-gray-700/75 dark:text-gray-400"
+            >
+              <span className="sr-only">Instagram</span>
+              <Instagram className="h-6 w-6" aria-hidden />
+            </a>
+          </li>
+
+          <li>
+            <a
+              href="https://twitter.com/noobnooc"
+              rel="noreferrer"
+              target="_blank"
+              className="text-gray-700 transition hover:text-gray-700/75 dark:text-gray-400"
+            >
+              <span className="sr-only">Twitter</span>
+              <Twitter className="h-6 w-6" aria-hidden />
+            </a>
+          </li>
+
+          <li>
+            <a
+              href="https://github.com/noobnooc/kosto-rim"
+              rel="noreferrer"
+              target="_blank"
+              className="text-gray-700 transition hover:text-gray-700/75 dark:text-gray-400"
+            >
+              <span className="sr-only">GitHub</span>
+              <Github className="h-6 w-6" aria-hidden />
+            </a>
+          </li>
+
+          <li>
+            <a
+              href="mailto:nooc@nooc.ink"
+              rel="noreferrer"
+              target="_blank"
+              className="text-gray-700 transition hover:text-gray-700/75 dark:text-gray-400"
+            >
+              <span className="sr-only">Email</span>
+              <EnvelopeIcon className="h-6 w-6" aria-hidden />
+            </a>
+          </li>
+        </ul>
       </div>
-    </div>
+
+      <p className="flex items-center justify-center text-sm text-gray-500">
+        Crafted by
+        <a className="mx-1 underline" href="https://nooc.ink" target="_blank">
+          Nooc
+        </a>
+        with <HeartIcon className="ml-1 h-5 w-5" />
+      </p>
+      <p className="text-center text-sm text-gray-500">© 2022</p>
+      <div className="mt-4 text-center text-sm text-gray-500">
+        <p className="my-1 uppercase opacity-60">Acknowledgement</p>
+        Powered by TypeScript / React / TailwindCSS and more
+        <br />
+        Hosted on Vercel
+      </div>
+    </footer>
   );
 }
 

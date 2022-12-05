@@ -12,6 +12,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@heroicons/react@npm:^2.0.13":
+  version: 2.0.13
+  resolution: "@heroicons/react@npm:2.0.13"
+  peerDependencies:
+    react: ">= 16"
+  checksum: f03c393a129cb468d103e4334815df956d7afa9d0756ee09b33e9396214d39b786523a5e650709de73c68ba085facda3fe01984ff137bcc16c85d4ed2498e663
+  languageName: node
+  linkType: hard
+
+"@icons-pack/react-simple-icons@npm:^6.2.0":
+  version: 6.2.0
+  resolution: "@icons-pack/react-simple-icons@npm:6.2.0"
+  peerDependencies:
+    react: ^16.13 || ^17 || ^18
+  checksum: b68e8227a43a2603a854e4f1a8fefb41296fa22457b80afb248484bcedac6b3e953706c6970a38dabd0ea28194d984312316881c8c313a7c40e481390b768795
+  languageName: node
+  linkType: hard
+
 "@next/env@npm:13.0.6":
   version: 13.0.6
   resolution: "@next/env@npm:13.0.6"
@@ -1603,6 +1621,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
+    "@heroicons/react": ^2.0.13
+    "@icons-pack/react-simple-icons": ^6.2.0
     "@types/node": 18.11.3
     "@types/react": 18.0.21
     "@types/react-dom": 18.0.6
