@@ -254,7 +254,10 @@ function calculateAnswers(answers: number[]): Result {
 }
 
 function ifAnswersAvailable(answers: number[]): boolean {
-  return answers.every((answer) => Number.isInteger(answer) && answer > 0);
+  return (
+    answers.length === questions.length &&
+    answers.every((answer) => Number.isInteger(answer) && answer > 0)
+  );
 }
 
 const Home: NextPage = () => {
