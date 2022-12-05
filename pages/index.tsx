@@ -515,7 +515,6 @@ function Footer() {
           <li>
             <a
               href="https://www.instagram.com/noobnooc/"
-              rel="noreferrer"
               target="_blank"
               className="text-gray-700 transition hover:text-gray-700/75 dark:text-gray-400"
             >
@@ -527,7 +526,6 @@ function Footer() {
           <li>
             <a
               href="https://twitter.com/noobnooc"
-              rel="noreferrer"
               target="_blank"
               className="text-gray-700 transition hover:text-gray-700/75 dark:text-gray-400"
             >
@@ -538,8 +536,7 @@ function Footer() {
 
           <li>
             <a
-              href="https://github.com/noobnooc/kosto-rim"
-              rel="noreferrer"
+              href="https://github.com/noobnooc/ztpi"
               target="_blank"
               className="text-gray-700 transition hover:text-gray-700/75 dark:text-gray-400"
             >
